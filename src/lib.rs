@@ -4,16 +4,36 @@
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
+/// Request item values for auth_getitem()
+///
+/// Item documentation from `auth_subr(3)`
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 #[repr(u32)]
+#[cfg(target_os = "openbsd")]
 pub enum AuthItem {
+    /// All items
     All = auth_item_t_AUTHV_ALL,
+    /// The latest challenge, if any, set for the session
     Challenge = auth_item_t_AUTHV_CHALLENGE,
+    /// The class of the user, as defined by the `/etc/login.conf` file.
+    /// This value is not directly used by BSD Authentication, rather, it is passed to the login
+    /// scripts for their possible use.
     Class = auth_item_t_AUTHV_CLASS,
-    Name = auth_item_t_AUTHV_NAME,
-    Service = auth_item_t_AUTHV_SERVICE,
-    Style = auth_item_t_AUTHV_STYLE,
+    /// If set to any value, then the session is tagged as interactive. If not set, the session is
+    /// not interactive. When the value is requested it is always either NULL or "True". The auth
+    /// subroutines may choose to provide additional information to standard output or standard
+    /// error when the session is interactive. There is no functional change in the operation of
+    /// the subroutines.
     Interactive = auth_item_t_AUTHV_INTERACTIVE,
+    /// The name of the user being authenticated. The name should include the instance, if any,
+    /// that is being requested.
+    Name = auth_item_t_AUTHV_NAME,
+    /// The service requesting the authentication. Initially it is set to the default service which
+    /// provides the traditional interactive service.
+    Service = auth_item_t_AUTHV_SERVICE,
+    /// The style of authentication being performed, as defined by the `/etc/login.conf` file. The
+    /// style determines which login script should actually be used.
+    Style = auth_item_t_AUTHV_STYLE,
 }
 
 #[cfg(test)]
