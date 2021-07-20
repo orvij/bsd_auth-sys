@@ -9,6 +9,7 @@ license = "BSD-4-Clause"
 repository = "https://github.com/orvij/bsd_auth-sys"
 
 [dependencies]
+libc = "0.2.98"
 
 [build-dependencies]
 bindgen = "0.58.1"
