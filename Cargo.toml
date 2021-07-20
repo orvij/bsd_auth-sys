@@ -1,6 +1,6 @@
 [package]
 name = "bsd_auth-sys"
-version = "0.0.4"
+version = "0.0.5"
 edition = "2018"
 categories = ["external-ffi-bindings"]
 description = "Minimal Rust bindings for OpenBSD's bsd_auth"
