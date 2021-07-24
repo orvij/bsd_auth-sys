@@ -2,80 +2,49 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
-include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+//include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 /// Request item values for auth_getitem()
 ///
 /// Item documentation from `auth_subr(3)`
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 #[repr(u32)]
-#[cfg(target_os = "openbsd")]
 pub enum AuthItem {
     /// All items
-    All = auth_item_t_AUTHV_ALL,
+    All = 0,
     /// The latest challenge, if any, set for the session
-    Challenge = auth_item_t_AUTHV_CHALLENGE,
+    Challenge = 1,
     /// The class of the user, as defined by the `/etc/login.conf` file.
     /// This value is not directly used by BSD Authentication, rather, it is passed to the login
     /// scripts for their possible use.
-    Class = auth_item_t_AUTHV_CLASS,
-    /// The name of the user being authenticated. The name should include the instance, if any,
-    /// that is being requested.
-    Name = auth_item_t_AUTHV_NAME,
-    /// The service requesting the authentication. Initially it is set to the default service which
-    /// provides the traditional interactive service.
-    Service = auth_item_t_AUTHV_SERVICE,
-    /// The style of authentication being performed, as defined by the `/etc/login.conf` file. The
-    /// style determines which login script should actually be used.
-    Style = auth_item_t_AUTHV_STYLE,
+    Class = 2,
+    /// The name of the user being authenticated.
+    /// The name should include the instance, if any, that is being requested.
+    Name = 3,
+    /// The service requesting the authentication.
+    /// Initially it is set to the default service which provides the traditional interactive service.
+    Service = 4,
+    /// The style of authentication being performed, as defined by the `/etc/login.conf` file.
+    /// The style determines which login script should actually be used.
+    Style = 5,
     /// If set to any value, then the session is tagged as interactive. If not set, the session is
-    /// not interactive. When the value is requested it is always either NULL or "True". The auth
-    /// subroutines may choose to provide additional information to standard output or standard
-    /// error when the session is interactive. There is no functional change in the operation of
-    /// the subroutines.
-    Interactive = auth_item_t_AUTHV_INTERACTIVE,
+    /// not interactive. When the value is requested it is always either NULL or "True".
+    /// The auth subroutines may choose to provide additional information to standard output or
+    /// standard error when the session is interactive.
+    /// There is no functional change in the operation of the subroutines.
+    Interactive = 6,
 }
 
-/// Request item values for auth_getitem()
+
+/// Raw FFI interface to authentication session struct
 ///
-/// Item documentation from `auth_subr(3)`
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-#[repr(u32)]
-#[cfg(not(target_os = "openbsd"))]
-pub enum AuthItem {
-    /// All items
-    All,
-    /// The latest challenge, if any, set for the session
-    Challenge,
-    /// The class of the user, as defined by the `/etc/login.conf` file.
-    /// This value is not directly used by BSD Authentication, rather, it is passed to the login
-    /// scripts for their possible use.
-    Class,
-    /// The name of the user being authenticated. The name should include the instance, if any,
-    /// that is being requested.
-    Name,
-    /// The service requesting the authentication. Initially it is set to the default service which
-    /// provides the traditional interactive service.
-    Service,
-    /// The style of authentication being performed, as defined by the `/etc/login.conf` file. The
-    /// style determines which login script should actually be used.
-    Style,
-    /// If set to any value, then the session is tagged as interactive. If not set, the session is
-    /// not interactive. When the value is requested it is always either NULL or "True". The auth
-    /// subroutines may choose to provide additional information to standard output or standard
-    /// error when the session is interactive. There is no functional change in the operation of
-    /// the subroutines.
-    Interactive,
-}
-
-#[cfg(not(target_os = "openbsd"))]
+/// No access to internal members
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct auth_session_t {
     _unused: [u8; 0],
 }
 
-#[cfg(not(target_os = "openbsd"))]
 extern "C" {
     /// Opens a BSD Authentication session
     ///
@@ -232,6 +201,15 @@ extern "C" {
         _name: *mut libc::c_char,
         _value: *mut libc::c_char,
     ) -> libc::c_int;
+
+    /// Set the password for the auth session
+    pub fn auth_setpwd(
+        _as: *mut auth_session_t,
+        _pwd: *mut libc::passwd
+    ) -> libc::c_int;
+
+    /// Manually set the authenticatio state for the session
+    pub fn auth_setstate(_as: *mut auth_session_t, _state: libc::c_int);
     
     /// Clears all previously set options
     pub fn auth_clroptions(_as: *mut auth_session_t);
